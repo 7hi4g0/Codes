@@ -1,0 +1,11 @@
+Supostamente gettimeofday() não têm precisão alta e pode dar resultados inesperados devido à correção NTP.
+
+clock() também não tem precisão tão alta (depende do sistema), mas aparentemente, no Linux, mede o tempo de CPU usado.
+
+A melhor escolha é clock_gettime(), pois possui alta precisão (1 nanosegundo em alguns sitemas).
+	Pode ser usado um dos relógios abaixo:
+	CLOCK_REALTIME: tempo real do sistema, mas também pode dar diferenças negativas devido à correção NTP
+	CLOCK_MONOTONIC: tempo desde um ponto aleatorio, nunca será decrementado portanto nunca dará diferenças negativas
+	CLOCK_MONOTONIC_RAW: ----------------
+	CLOCK_PROCESS_CPUTIME_ID: tempo de CPU utilizado pelo processo
+	CLOCK_THREAD_CPUTIME_ID: ---------------
