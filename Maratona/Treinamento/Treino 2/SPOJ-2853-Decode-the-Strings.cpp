@@ -27,7 +27,6 @@ int main() {
 		getline(cin, linha);
 		
 		string saida(linha);
-		//saida[linha.size()] = '\0';
 		
 		for (int i = 0; i < letras; i++) {
 			if (ordem[i] != i) {
@@ -48,10 +47,6 @@ int main() {
 				}
 			}
 		}
-		
-		//string palavra(saida);
-		
-		//cout << linha << endl;
 		
 		cout << saida << endl;
 		
