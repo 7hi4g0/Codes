@@ -32,7 +32,7 @@ func main() {
 	
 	draw.Draw(imagem, imagem.Bounds(), image.NewUniform(color.RGBA{40, 125, 80, 255}), image.ZP, draw.Src)
 	
-	for raio := 25; raio > 0; raio-- {
+	for raio := 65; raio > 0; raio-- {
 		Circle(imagem, cor, float64(raio))
 		cor.R += 6
 		cor.G += 6
