@@ -6,8 +6,22 @@ import (
 )
 
 func main() {
-	p := perceptron.New(2, 0.5, 0)
+	p := perceptron.New(4, 0.1, 0.5)
 	
+	base := []perceptron.Entrada{{0, 0, 0, 0, 0},
+								{0, 1, 0, 0, 0},
+								{1, 0, 1, 0, 0},
+								{1, 1, 0, 0, 0},
+								{0, 1, 0, 0, 0},
+								{1, 0, 1, 0, 0},
+								{1, 1, 0, 0, 0}}
+	
+	fmt.Println(p)
+	p.Learn(base)
+	
+	fmt.Println(p.Estimate(perceptron.Entrada{0, 0}))
+	fmt.Println(p.Estimate(perceptron.Entrada{0, 1}))
 	fmt.Println(p.Estimate(perceptron.Entrada{1, 0}))
-	fmt.Printf("%T\n", p)
+	fmt.Println(p.Estimate(perceptron.Entrada{1, 1}))
+	fmt.Println(p)
 }
