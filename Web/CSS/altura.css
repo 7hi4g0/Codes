@@ -1,0 +1,19 @@
+body {
+   background: #f0f0f0 url(fundo.gif) repeat-y 50%;
+   text-align: center; 
+}
+#container{
+   margin:auto;
+   text-align:left;
+   width: 1000px;
+}
+#esquerda{
+   width: 670px;
+   float: left;
+   margin: 10px 0px 10px 10px;
+}
+#direita{
+   width: 290px;
+   float: right;
+   margin: 10px 5px 10px 0px;
+} 

@@ -24,7 +24,7 @@ func (e *event) FromBytes(b []byte) {
 }
 
 func main() {
-	file, err := os.Open("/dev/input/event5")
+	file, err := os.Open("/dev/input/event2")
 	
 	if file == nil {
 		fmt.Println(err)
