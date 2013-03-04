@@ -12,25 +12,53 @@
 #define		GLX_GLXEXT_PROTOTYPES
 #include <GL/glxext.h>
 
+// Para o algoritmo de geração de terreno o lado do quadrado tem que ser potência de 2 mais um
+#define		Side	513
+#define		Size	2
+
+#define		Variation	100
+#define		Smooth		0.7
+
+#define		Walk	4
+#define		Run		9
+
 using std::vector;
 using std::cout;
 using std::endl;
 
-static const char *szIdentityShaderVP = "#version 410 core\n"
+typedef struct {
+	GLfloat x;
+	GLfloat y;
+	GLfloat z;
+} Position;
+
+typedef struct {
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+} Color;
+
+static const char *szIdentityShaderVP = "#version 420 core\n"
 										"in vec4 vVertex;"
 										"in vec4 vColor;"
 										"flat out vec4 fColor;"
+										//"smooth out float blend;"
 										"uniform mat4 pmat;"
 										"uniform mat4 mvmat;"
-										"void main() "
-										"{ gl_Position = pmat * mvmat * vVertex; "
-										"fColor = vColor;"
+										"void main() {"
+										"	gl_Position = mvmat * vVertex;"
+										"	fColor = vColor;"
+										//"	blend = clamp((200 - length(gl_Position)) / (200 - 1), 0.0, 1.0);"
+										"	gl_Position = pmat * gl_Position;"
 										"}";
 									
-static const char *szIdentityShaderFP = "#version 410 core\n"
+static const char *szIdentityShaderFP = "#version 420 core\n"
+										"out vec4 fragColor;"
 										"flat in vec4 fColor;"
-										"void main(void) "
-										"{ gl_FragColor = fColor;"
+										//"smooth in float blend;"
+										"void main(void) {"
+										//"	fragColor = mix(vec4(0.0, 0.0, 1.0, 1.0), fColor, blend);"
+										"	fragColor = fColor;"
 										"}";
 
 Display					*dpy;
@@ -88,6 +116,97 @@ PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
 PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer;
 
+
+void diamond(Position *terrain, int x1, int z1, int x2, int z2, int diff) {
+	int meio;
+	int count = 2;
+	Position *ponto;
+	
+	if (x1 == x2) {
+		meio = (z2 - z1) / 2;
+		
+		ponto = &terrain[x1 * Side + z1 + meio];
+		
+		//cout << "x: " << x1 << " z: " << z1 + meio << endl;
+		
+		ponto->y = 0.0f;
+		
+		if (x1 - meio >= 0) {
+			ponto->y += terrain[(x1 - meio) * Side + z1 + meio].y;
+			count++;
+		}
+		
+		if (x1 + meio < Side) {
+			ponto->y += terrain[(x1 + meio) * Side + z1 + meio].y;
+			count++;
+		}
+	} else {
+		meio = (x2 - x1) / 2;
+		
+		ponto = &terrain[(x1 + meio) * Side + z1];
+		
+		//cout << "x: " << x1 + meio << " z: " << z1 << endl;
+		
+		ponto->y = 0.0f;
+		
+		if (z1 - meio >= 0) {
+			ponto->y += terrain[(x1 + meio) * Side + z1 - meio].y;
+			count++;
+		}
+		
+		if (z1 + meio < Side) {
+			ponto->y += terrain[(x1 + meio) * Side + z1 + meio].y;
+			count++;
+		}
+	}
+	
+	ponto->y += terrain[x1 * Side + z1].y + terrain[x2 * Side + z2].y;
+	ponto->y /= count;
+	ponto->y += rand() % (2 * diff + 1) - diff;
+}
+
+void MidpointDisplacement(Position *terrain, int start, int end, int diff) {
+	int tam = end - start - 1;
+	
+	for (; tam > 1; tam /= 2) {
+		for (int x = start; x < end - 1; x += tam) {
+			for (int z = start; z < end - 1; z += tam) {
+				int meioX = x + tam / 2;
+				int meioZ = z + tam / 2;
+				Position *ponto = &terrain[meioX * Side + meioZ];
+		
+				ponto->y = terrain[x * Side + z].y + terrain[x * Side + z + tam].y + terrain[(x + tam) * Side + z].y + terrain[(x + tam) * Side + z + tam].y;
+				ponto->y /= 4;
+				ponto->y += rand() % (2 * diff + 1) - diff;
+			}
+		}
+		
+		for (int x = start; x < end - 1; x += tam) {
+			for (int z = start; z < end - 1; z += tam) {
+				int meioX = x + tam / 2;
+				int meioZ = z + tam / 2;
+				
+				diamond(terrain, x, z, x, z + tam, diff);
+				diamond(terrain, x, z, x + tam, z, diff);
+				diamond(terrain, x + tam, z, x + tam, z + tam, diff);
+				diamond(terrain, x, z + tam, x + tam, z + tam, diff);
+			}
+		}
+		
+		//diff = rand() % (diff - diff / 2 + 1) + diff / 2;
+		diff =  diff * pow(2, -Smooth);
+	}
+}
+
+void GenerateTerrain(Position *terrain) {
+	terrain[0].y = //56.0f;
+	terrain[Side - 1].y = //-45.0f;
+	terrain[(Side - 1) * Side].y = //3.0f;
+	terrain[(Side - 1) * Side + Side - 1].y = 23.0f;
+	
+	MidpointDisplacement(terrain, 0, Side, Variation);
+}
+
 void CreateWindow(){
 	dpy = XOpenDisplay(NULL);
 	
@@ -98,6 +217,11 @@ void CreateWindow(){
 	
 	if (count != 1){
 		cout << "Either more than one or no FBConfig found" << endl;
+		cout << count << endl;
+		
+		/*for (int i = 0; i < count; i++) {
+			std::cout << p_fbc[i].
+		}*/
 		
 		XCloseDisplay(dpy);
 		exit(1);
@@ -257,39 +381,41 @@ int main(){
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 	
-	GLfloat *terrain = (GLfloat *) new GLfloat[30603];
-	GLfloat *color = (GLfloat *) new GLfloat[30603];
+	Position *terrain = (Position *) new Position[Side * Side];
+	Color *color = (Color *) new Color[Side * Side];
 	vector<GLuint> *index = new vector<GLuint>();
 	
-	GLfloat z_pos = -500.0f;
+	GLfloat z_pos = -(Side / 2) * Size;
 	
-	for (int i = 0; i < 101; i++){
-		GLfloat x_pos = -500.0f;
+	for (int i = 0; i < Side; i++){
+		GLfloat x_pos = -(Side / 2) * Size;
 		
-		for (int j = 0; j < 101; j++){
-			terrain[(i*101 + j)*3] = x_pos;
-			terrain[(i*101 + j)*3 + 1] = 0.0f;
-			terrain[(i*101 + j)*3 + 2] = z_pos;
+		for (int j = 0; j < Side; j++){
+			terrain[i * Side + j].x = x_pos;
+			terrain[i * Side + j].y = 0.0f; //static_cast<GLfloat>(rand() % 50) - 25.0f;
+			terrain[i * Side + j].z = z_pos;
 			
-			color[(i*101 + j)*3] = static_cast<GLfloat>(rand()) / RAND_MAX;
-			color[(i*101 + j)*3 + 1] = static_cast<GLfloat>(rand()) / RAND_MAX;
-			color[(i*101 + j)*3 + 2] = static_cast<GLfloat>(rand()) / RAND_MAX;
+			color[i * Side + j].r = static_cast<GLfloat>(rand()) / RAND_MAX;
+			color[i * Side + j].g = static_cast<GLfloat>(rand()) / RAND_MAX;
+			color[i * Side + j].b = static_cast<GLfloat>(rand()) / RAND_MAX;
 			
-			x_pos += 10.0f;
+			x_pos += Size;
 		}
 		
-		z_pos += 10.0f;
+		z_pos += Size;
 	}
 	
-	for (int z = 0; z < 100; z++){
-		for (int x = 0; x < 100; x++){
-			index->push_back((z * 101) + x);
-			index->push_back((z * 101) + x + 1);
-			index->push_back(((z + 1) * 101) + x);
+	GenerateTerrain(terrain);
+	
+	for (int z = 0; z < Side - 1; z++){
+		for (int x = 0; x < Side - 1; x++){
+			index->push_back((z * Side) + x);
+			index->push_back((z * Side) + x + 1);
+			index->push_back(((z + 1) * Side) + x);
 			
-			index->push_back((z * 101) + x + 1);
-			index->push_back(((z + 1) * 101) + x + 1);
-			index->push_back(((z + 1) * 101) + x);
+			index->push_back((z * Side) + x + 1);
+			index->push_back(((z + 1) * Side) + x + 1);
+			index->push_back(((z + 1) * Side) + x);
 		}
 	}
 	
@@ -304,10 +430,10 @@ int main(){
 	glGenBuffers(2, &vbo[0]);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, 30603 * sizeof(GLfloat), terrain, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Side * Side * sizeof(Position), terrain, GL_STATIC_DRAW);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, 30603 * sizeof(GLfloat), color, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Side * Side * sizeof(Color), color, GL_STATIC_DRAW);
 	
 	GLuint index_buffer;
 	
@@ -356,8 +482,8 @@ int main(){
 	Matrix4 projection;
 	
 	modelview.identity();
+	modelview.translate(0, -2 - terrain[(Side / 2) * Side + Side / 2].y, 0);
 	modelview.rotate(45, 0, 1, 0);
-	modelview.translate(0, -2, 0);
 	/*modelview.translate(0, -40.0, 0);
 	modelview.rotate(45, 0, 1, 0);
 	modelview.translate(0, 0, 40);*/
@@ -370,14 +496,23 @@ int main(){
 	
 	glEnable(GL_DEPTH_TEST);
 	
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 	//std::cout << projection << std::endl;
 	bool loop = true;
 	
 	int quant = size;
 	float vert = 0;
 	float hor = 0;
+	int vertRot;
+	int horRot;
+	float xPos = 0;
+	float yPos = 0;
+	float zPos = 0;
+	int vertTotal = 0;
 	
-	double elapsedSeconds = 0;
+	double fps = 0.0;
+	double elapsedSeconds = 0.0;
 	unsigned int last;
 	struct timeval tv;
 	
@@ -386,6 +521,8 @@ int main(){
 	last = tv.tv_sec * 1000 + tv.tv_usec /1000;
 	
 	while (loop){
+		vertRot = 0;
+		horRot = 0;
 		
 		while (XPending(dpy) > 0){
 			XNextEvent(dpy, &xev);
@@ -403,33 +540,45 @@ int main(){
 							break;
 						case (XK_w):
 							if (xev.xkey.state & ShiftMask)
-								vert = -3;
+								vert = -Run;
 							else
-								vert = -1.4;
+								vert = -Walk;
 							break;
 						case (XK_s):
 							if (xev.xkey.state & ShiftMask)
-								vert = 3;
+								vert = Run;
 							else
-								vert = 1.4;
+								vert = Walk;
 							break;
 						case (XK_a):
 							if (xev.xkey.state & ShiftMask)
-								hor = 3;
+								hor = Run;
 							else
-								hor = 1.4;
+								hor = Walk;
 							break;
 						case (XK_d):
 							if (xev.xkey.state & ShiftMask)
-								hor = -3;
+								hor = -Run;
 							else
-								hor = -1.4;
+								hor = -Walk;
+							break;
+						case (XK_Up):
+							vertRot++;
+							break;
+						case (XK_Down):
+							vertRot--;
+							break;
+						case (XK_Left):
+							horRot++;
+							break;
+						case (XK_Right):
+							horRot--;
 							break;
 						case (XK_Escape):
 							loop = false;
 							break;
 					}
-					cout << (xev.xkey.state & Mod1Mask) << endl;
+					//cout << (xev.xkey.state & Mod1Mask) << endl;
 					break;
 				case KeyRelease:
 					switch (XLookupKeysym(&xev.xkey, 0)){
@@ -472,12 +621,43 @@ int main(){
 					break;
 				case ConfigureNotify:					
 					glViewport(0, 0, xev.xconfigure.width, xev.xconfigure.height);
-					projection.setPerspective(60, static_cast<float>(xev.xconfigure.width) / xev.xconfigure.height, 1, 100);
+					projection.setPerspective(60, static_cast<float>(xev.xconfigure.width) / xev.xconfigure.height, 1, 1000);
 					break;
 				default:
 					break;
 			}
 		}
+		
+		vertTotal += vertRot;
+		
+		gettimeofday(&tv, NULL);
+		
+		unsigned int now = tv.tv_sec*1000 + tv.tv_usec / 1000;
+		elapsedSeconds = double(now - last) / 1000.0;
+		last = now;
+		
+		/*
+		if (elapsedSeconds == 0){
+			fps = 0.75 * fps + 0.25 * (1 / 100);
+		} else {
+			fps = 0.75 * fps + 0.25 * (1 / elapsedSeconds);
+		}
+		
+		cout << fps << endl;
+		*?
+		
+		//cout << elapsedSeconds << endl;
+		/*
+		float yHor;
+		float zHor;
+		
+		yHor = cos(vertTotal * 3.14159265358979f / 180.0f);
+		zHor = sqrt(2 - 2 * yHor * cos(vertTotal * 3.14159265358979f / 180.0f) - pow(yHor - 1, 2));
+		*/
+		modelview.rotate(vertRot - vertTotal, 1, 0, 0);
+		modelview.rotate(horRot, 0, 1, 0);
+		modelview.rotate(vertTotal, 1, 0, 0);
+		modelview.translate(hor * elapsedSeconds, 0, vert * elapsedSeconds);
 		
 		//cout << glGetError() << endl;
 		
@@ -502,16 +682,6 @@ int main(){
 		//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 		
 		glXSwapBuffers(dpy, win);
-		
-		gettimeofday(&tv, NULL);
-		
-		unsigned int now = tv.tv_sec*1000 + tv.tv_usec / 1000;
-		elapsedSeconds = double(now - last) / 1000.0;
-		last = now;
-		
-		//cout << elapsedSeconds << endl;
-		
-		modelview.translate(hor * elapsedSeconds, 0, vert * elapsedSeconds);
 		
 		//usleep(50000);
 	}
@@ -538,8 +708,11 @@ int main(){
 	XDestroyWindow(dpy, win);	
 	XCloseDisplay(dpy);
 	
-	delete []terrain;
-	delete index;
+	cout << "final" << endl;
+	
+	//delete []terrain;
+	//delete []color;
+	//delete index;
 	
 	return 0;
 }

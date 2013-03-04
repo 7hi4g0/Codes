@@ -1,9 +1,0 @@
-#include <sqmatrix>
-
-void Matrix::identity(){
-	memset(values, 0, 16 * sizeof(float));
-	
-	for (int i = 0; i < row; i--){
-		(*this)(i, i) = 1;
-	}
-}
