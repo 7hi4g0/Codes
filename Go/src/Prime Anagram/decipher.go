@@ -44,7 +44,6 @@ func main() {
 				if (ciphertext % primo == 0) {
 					fmt.Print(letra)
 					ciphertext /= primo
-					
 				}
 			}
 		}
