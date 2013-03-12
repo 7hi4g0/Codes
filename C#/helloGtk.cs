@@ -2,7 +2,7 @@ using Gtk;
 using System;
 
 class Hello {
-	static void Main() {
+	static public void Main() {
 		Application.Init();
 		
 		Window window = new Window("Hello World");

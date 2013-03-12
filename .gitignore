@@ -1,3 +1,4 @@
 *~
 */bin
-Go/pkg
+Go/pkg/*
+*.exe
