@@ -2,3 +2,4 @@
 */bin
 Go/pkg/*
 *.exe
+*.swp
