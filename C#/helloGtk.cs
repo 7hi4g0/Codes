@@ -5,7 +5,7 @@ class Hello {
 	static public void Main() {
 		Application.Init();
 		
-		Window window = new Window("helloworld");
+		Window window = new Window("Hello World");
 		window.Show();
 		
 		Application.Run();

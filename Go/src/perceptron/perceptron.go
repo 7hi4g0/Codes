@@ -7,7 +7,7 @@ import (
 )
 
 type Perceptron interface {
-	Estimate(Entrada) int
+	Estimate(Entrada) (int, error)
 	Learn([]Entrada) error
 }
 
@@ -42,11 +42,11 @@ func New(entradas int, aprendizado, corte float64) Perceptron {
 	return p
 }
 
-func (p *perceptron) Estimate(ent Entrada) int{
+func (p *perceptron) Estimate(ent Entrada) (int, error) {
 	var soma float64
 	
 	if len(ent) < p.entradas {
-		return 0
+		return -1, &EntradaInvalida{p.entradas, len(ent)}
 	}
 	
 	for indice := 0; indice < p.entradas; indice++ {
@@ -56,13 +56,13 @@ func (p *perceptron) Estimate(ent Entrada) int{
 	soma += p.pesos[p.entradas]
 	
 	if soma > p.corte {
-		return 1
+		return 1, nil
 	}
 	
-	return 0
+	return 0, nil
 }
 
-func (p *perceptron) Learn(base []Entrada) error{
+func (p *perceptron) Learn(base []Entrada) error {
 	for passos, acertou := 0, false; passos < 500 && !acertou; passos++ {
 		acertou = true
 		for _, registro := range base {
@@ -70,7 +70,11 @@ func (p *perceptron) Learn(base []Entrada) error{
 				return &EntradaInvalida{p.entradas + 1, len(registro)}
 			}
 		
-			estimado := p.Estimate(registro[:p.entradas])
+			estimado, err := p.Estimate(registro[:p.entradas])
+			
+			if err != nil {
+				return err
+			}
 		
 			erro := registro[p.entradas] - estimado
 			if erro != 0 {
