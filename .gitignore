@@ -3,3 +3,4 @@
 Go/pkg/*
 *.exe
 *.swp
+*.pyc
