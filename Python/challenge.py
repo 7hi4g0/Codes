@@ -198,16 +198,17 @@ def test_possibles(word, addSpaces = True):
 	if addSpaces:
 		word = ' ' + word + ' '
 	parts = try_word(word)
-	possibles = {}
+	possibles = []
 	for pos, word in parts.iteritems():
 		for w in word.split():
 			for p in possible_words(w):
 				if not (word.index(w) != 0 and p.index(w) != 0):
-					newPos = pos - p.index(w)
+					newPos = pos + word.index(w) - p.index(w)
 					newWord = try_word_pos(p, newPos)
 					if newWord != '':
-						possibles[newPos] = p
+						possibles.append((newPos, p))
 	return possibles
 
 if __name__ == '__main__':
-	try_word_list()
+	#try_word_list()
+	print test_possibles('be')
