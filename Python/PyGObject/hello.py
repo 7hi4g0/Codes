@@ -12,7 +12,8 @@ class MyWindow(Gtk.Window):
 	def on_button_clicked(self, widget):
 		print("Hello World")
 
-win = MyWindow()
-win.connect("delete-event", Gtk.main_quit)
-win.show_all()
-Gtk.main()
+if __name__ == "__main__":
+	win = MyWindow()
+	win.connect("delete-event", Gtk.main_quit)
+	win.show_all()
+	Gtk.main()
