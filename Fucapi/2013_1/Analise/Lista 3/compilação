@@ -1,0 +1,3 @@
+Todos o exercícios desta pasta foram compilados sem erro e sem avisos com o seguinte comando:
+	gcc -std=c99 -pedantic -Wall -Wextra *nome*.c
+onde *nome* é nome do arquivo a ser compilado.

@@ -1,0 +1,64 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+typedef struct _avaliacao{
+	float nota;
+	int peso;
+	struct _avaliacao *prox;
+} avaliacao;
+
+avaliacao* novaAvaliacao(float, int);
+avaliacao* novaLista(int);
+void imprimeLista(avaliacao*);
+
+int main(void) {
+	avaliacao *lista;
+	
+	lista = novaLista(5);
+	
+	imprimeLista(lista);
+	
+	return 0;
+}
+
+avaliacao* novaAvaliacao(float nota, int peso) {
+	avaliacao *aluno;
+	
+	aluno = (avaliacao *) malloc(sizeof(avaliacao));
+	
+	aluno->nota = nota;
+	aluno->peso = peso;
+	aluno->prox = NULL;
+	
+	return aluno;
+}
+
+avaliacao* novaLista(int alunos) {
+	avaliacao *lista;
+	
+	lista = NULL;
+	
+	for (int contador = 0; contador < alunos; contador++) {
+		float nota;
+		int peso;
+		avaliacao *novo;
+		
+		scanf("%f %d", &nota, &peso);
+		
+		novo = novaAvaliacao(nota, peso);
+		novo->prox = lista;
+		
+		lista = novo;
+	}
+	
+	return lista;
+}
+
+void imprimeLista(avaliacao *lista) {
+	if (lista == NULL) {
+		return;
+	}
+	
+	printf("Nota: %.2f\nPeso: %d\n", lista->nota, lista->peso);
+	imprimeLista(lista->prox);
+}
