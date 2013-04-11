@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 #include "ordenacao.h"
 
 uint16_t* montarVetor(FILE*, int*);
@@ -15,11 +15,11 @@ int main(int argc, char* argv[]) {
 	FILE *arquivoTeste;
 	char *entradaTeste;
 	char *metodo;
-	void (*ordenar)(uint16_t*);
+	funcaoOrdenar ordenar;
 	uint16_t *vetor;
 	int tamanho;
-	time_t tempoInicio;
-	time_t tempoFim;
+	struct timeval tempoInicio;
+	struct timeval tempoFim;
 	
 	programa = argv[0];
 	
@@ -50,11 +50,13 @@ int main(int argc, char* argv[]) {
 	
 	printf("Lidos %d números de %s\n", tamanho, entradaTeste);
 	
-	tempoInicio = time(NULL);
+	gettimeofday(&tempoInicio, NULL);
 	
-	ordenar(vetor);
+	ordenar(vetor, tamanho);
 	
-	tempoFim = time(NULL);
+	gettimeofday(&tempoFim, NULL);
+	
+	printf("Execução completa!\nTempo total de execução: %.2lfms\n", (tempoFim.tv_usec -  tempoInicio.tv_usec) / 1000.0);
 	
 	return 0;
 }

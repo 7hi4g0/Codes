@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "ordenacao.h"
 
-void quicksort(uint16_t *entrada) {
+void quicksort(uint16_t *entrada, int tamanho) {
 	
 }

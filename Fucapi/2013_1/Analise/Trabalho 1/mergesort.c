@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "ordenacao.h"
 
-void mergesort(uint16_t *entrada) {
+void mergesort(uint16_t *entrada, int tamanho) {
 	
 }
