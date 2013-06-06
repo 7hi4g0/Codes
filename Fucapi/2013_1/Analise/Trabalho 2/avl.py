@@ -4,6 +4,18 @@ class Nodo:
 		self.altura = 0
 		self.esquerda = None
 		self.direita = None
+	
+	def fator(self):
+		return 2
+	
+	def balanceia(self):
+		pass
+	
+	def rodaEsq(self):
+		pass
+	
+	def rodaDir(self):
+		pass
 
 class AVL:
 	def __init__(self):
@@ -14,6 +26,7 @@ class AVL:
 			self.raiz = Nodo(num)
 		else:
 			atual = self.raiz
+			caminho = [atual]
 			
 			while True:
 				if num > atual.valor:
@@ -22,12 +35,19 @@ class AVL:
 						break
 					else:
 						atual = atual.direita
+						caminho.append(atual)
 				else:
 					if atual.esquerda is None:
 						atual.esquerda = Nodo(num)
 						break
 					else:
 						atual = atual.esquerda
+						caminho.append(atual)
+
+			while len(caminho) > 0:
+				atual = caminho.pop
+				if abs(atual.fator()) > 1:
+					atual.balanceia()
 	
 	def imprime(self):
 		nos = []
