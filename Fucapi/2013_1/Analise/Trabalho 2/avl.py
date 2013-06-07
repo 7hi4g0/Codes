@@ -77,7 +77,7 @@ class Nodo:
 	
 	def removeDoisFilhos(self):
 		caminho = []
-		menor = self.esquerda
+		menor = self
 		
 		while menor != Nulo:
 			caminho.append(menor)
