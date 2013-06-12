@@ -1,9 +1,10 @@
 import avl
 import random
 import time
+import sys
 
 repeticoes = 50
-numeros = 1000
+numeros = 1000000
 valores = [elem for elem in range(1, numeros + 1)]
 
 print("Gerados {0} números".format(numeros))
@@ -12,7 +13,7 @@ mediaInserir = 0
 mediaBusca = 0
 mediaBuscaInexistente = 0
 mediaRemove = 0
-mediaREmoveInexistente = 0
+mediaRemoveInexistente = 0
 
 for teste in range(1, repeticoes + 1):
 	tree = avl.AVL()
@@ -20,40 +21,41 @@ for teste in range(1, repeticoes + 1):
 	random.shuffle(valores)
 	
 	# Teste inserção
-	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
+	inicio = time.time()
 	for valor in valores:
 		tree.insere(valor)
-	mediaInserir += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
+	mediaInserir += (time.time() - inicio) / repeticoes
 	
 	# Teste busca existente
-	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
+	inicio = time.time()
 	tree.busca(random.choice(valores))
-	mediaBusca += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
+	mediaBusca += (time.time() - inicio) / repeticoes
 	
 	# Teste busca inexistente
-	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
+	inicio = time.time()
 	try:
 		tree.busca(random.choice(valores) + numeros)
 	except avl.NotFound:
 		pass
-	mediaiBuscaInexistente += (time.clock_gettime(time.CLCOK_MONOTONIC) - inicio) / repeticoes
+	mediaBuscaInexistente += (time.time() - inicio) / repeticoes
 	
 	# Teste remoção existente
-	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
+	inicio = time.time()
 	tree.remove(random.choice(valores))
-	mediaRemove += (time.clock_gettime(time.CLCOK_MONOTONIC) - inicio) / repeticoes
+	mediaRemove += (time.time() - inicio) / repeticoes
 	
 	# Teste remoção inexistente
-	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
+	inicio = time.time()
 	try:
 		tree.remove(random.choice(valores) + numeros)
 	except avl.NotFound:
 		pass
-	mediaRemoveInexistente += (time.clock_gettime(time.CLCOK_MONOTONIC) - inicio) / repeticoes
+	mediaRemoveInexistente += (time.time() - inicio) / repeticoes
 	
 	print("Fim do teste {0}".format(teste))
+	sys.stdout.flush()
 
-print("Tempo médio de inserção: {0}s".format(media))
+print("Tempo médio de inserção: {0}s".format(mediaInserir))
 print("Tempo médio de busca: {0}s".format(mediaBusca))
 print("Tempo médio de busca (inexistente): {0}s".format(mediaBuscaInexistente))
 print("Tempo médio de remoção: {0}s".format(mediaRemove))
