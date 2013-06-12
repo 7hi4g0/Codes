@@ -25,7 +25,7 @@ class ValoresExistentes(unittest.TestCase):
 		for valor in valores:
 			tree.remove(valor)
 			quant -= 1
-			self.assertTrue(-1 <= tree.raiz.fator() <= 1)
+			self.assertTrue(-1 <= tree.raiz.fator() <= 1 if tree.altura != -1 else True)
 	
 	def test_busca_valor(self):
 		"""Buscar por valor existente deve retornar Nodo"""

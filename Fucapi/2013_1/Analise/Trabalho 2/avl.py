@@ -76,8 +76,8 @@ class Nodo:
 			pai.direita = filho
 	
 	def removeDoisFilhos(self):
-		caminho = []
-		menor = self
+		caminho = [self]
+		menor = self.esquerda
 		
 		while menor != Nulo:
 			caminho.append(menor)
@@ -147,9 +147,11 @@ class AVL:
 	def remove(self, num):
 		caminho = []
 		atual = self.raiz
+		achado = False
 		
 		while atual != Nulo:
 			if atual.valor == num:
+				achado = True
 				filhos = 0
 				if atual.esquerda != Nulo:
 					filhos += 1
@@ -176,6 +178,9 @@ class AVL:
 				else:
 					atual = atual.esquerda
 		
+		if not achado:
+			raise NotFound("{0} não encontrado".format(num))
+		
 		while len(caminho) > 0:
 			atual = caminho.pop()
 			
@@ -184,14 +189,16 @@ class AVL:
 	def imprime(self):
 		nos = []
 		atual = self.raiz
+		valores = []
 		while len(nos) != 0 or atual != Nulo:
 			if atual != Nulo:
 				nos.append(atual)
 				atual = atual.esquerda
 			else:
 				atual = nos.pop()
-				print(atual.valor)
+				valores.append(str(atual.valor))
 				atual = atual.direita
+		print(" ".join(valores))
 
 class NotFound(Exception):
 	pass
