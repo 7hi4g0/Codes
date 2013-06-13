@@ -1,4 +1,4 @@
-Gerados 1000 números
+Gerados 1000000 números
 Fim do teste 1
 Fim do teste 2
 Fim do teste 3
@@ -49,8 +49,8 @@ Fim do teste 47
 Fim do teste 48
 Fim do teste 49
 Fim do teste 50
-Tempo médio de inserção: 0.02295564666000246s
-Tempo médio de busca: 2.5334880003811122e-05s
-Tempo médio de busca (inexistente): 4.332802000135415e-05s
-Tempo médio de remoção: 3.874389999509731e-05s
-Tempo médio de remoção (inexistente): 2.0087359998797187e-05s
+Tempo médio de inserção: 60.69236187345999s
+Tempo médio de busca: 3.636992001474938e-05s
+Tempo médio de busca (inexistente): 4.941199995528223e-05s
+Tempo médio de remoção: 6.752442002380122e-05s
+Tempo médio de remoção (inexistente): 2.4965660031739393e-05s

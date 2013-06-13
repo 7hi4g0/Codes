@@ -1,0 +1,11 @@
+Gerados 10000000 números
+Fim do teste 1
+Fim do teste 2
+Fim do teste 3
+Fim do teste 4
+Fim do teste 5
+Tempo médio de inserção: 808.072530918s
+Tempo médio de busca: 0.0020658993995311898s
+Tempo médio de busca (inexistente): 0.0020239269997546216s
+Tempo médio de remoção: 0.00014423559987335467s
+Tempo médio de remoção (inexistente): 4.1827400491456504e-05s

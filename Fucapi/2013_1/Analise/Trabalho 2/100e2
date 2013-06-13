@@ -49,8 +49,8 @@ Fim do teste 47
 Fim do teste 48
 Fim do teste 49
 Fim do teste 50
-Tempo médio de inserção: 0.25463339805603025s
-Tempo médio de busca: 1.364707946777344e-05s
-Tempo médio de busca (inexistente): 2.3322105407714846e-05s
-Tempo médio de remoção: 3.443717956542969e-05s
-Tempo médio de remoção (inexistente): 1.2454986572265629e-05s
+Tempo médio de inserção: 0.30865357238000346s
+Tempo médio de busca: 2.716947998578689e-05s
+Tempo médio de busca (inexistente): 4.336386000886705e-05s
+Tempo médio de remoção: 4.530999998905828e-05s
+Tempo médio de remoção (inexistente): 2.6052600005641577e-05s

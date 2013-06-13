@@ -3,8 +3,8 @@ import random
 import time
 import sys
 
-repeticoes = 50
-numeros = 1000000
+repeticoes = 5
+numeros = 10000000
 valores = [elem for elem in range(1, numeros + 1)]
 
 print("Gerados {0} números".format(numeros))
@@ -21,36 +21,36 @@ for teste in range(1, repeticoes + 1):
 	random.shuffle(valores)
 	
 	# Teste inserção
-	inicio = time.time()
+	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
 	for valor in valores:
 		tree.insere(valor)
-	mediaInserir += (time.time() - inicio) / repeticoes
+	mediaInserir += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
 	
 	# Teste busca existente
-	inicio = time.time()
+	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
 	tree.busca(random.choice(valores))
-	mediaBusca += (time.time() - inicio) / repeticoes
+	mediaBusca += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
 	
 	# Teste busca inexistente
-	inicio = time.time()
+	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
 	try:
 		tree.busca(random.choice(valores) + numeros)
 	except avl.NotFound:
 		pass
-	mediaBuscaInexistente += (time.time() - inicio) / repeticoes
+	mediaBuscaInexistente += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
 	
 	# Teste remoção existente
-	inicio = time.time()
+	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
 	tree.remove(random.choice(valores))
-	mediaRemove += (time.time() - inicio) / repeticoes
+	mediaRemove += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
 	
 	# Teste remoção inexistente
-	inicio = time.time()
+	inicio = time.clock_gettime(time.CLOCK_MONOTONIC)
 	try:
 		tree.remove(random.choice(valores) + numeros)
 	except avl.NotFound:
 		pass
-	mediaRemoveInexistente += (time.time() - inicio) / repeticoes
+	mediaRemoveInexistente += (time.clock_gettime(time.CLOCK_MONOTONIC) - inicio) / repeticoes
 	
 	print("Fim do teste {0}".format(teste))
 	sys.stdout.flush()
