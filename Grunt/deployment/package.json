@@ -1,0 +1,14 @@
+{
+  "name": "deployment",
+  "version": "0.0.0",
+  "description": "A simple project to copy files for deployment.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^0.4.5"
+  }
+}
