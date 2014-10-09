@@ -44,6 +44,8 @@ module.exports = function (grunt) {
 			'Copy files to working directory.', function () {
 		var files, workingDirectory;
 
+		this.requires('clean');
+
 		this.requiresConfig(this.name + '.options.manifest');
 		this.requiresConfig(this.name + '.options.workingDirectory');
 
@@ -53,6 +55,17 @@ module.exports = function (grunt) {
 		files.forEach(function (file) {
 			recursiveCopy(file, workingDirectory);
 		});
+	});
+
+	grunt.registerTask('versionFile',
+			'Generate a version file.', function(){
+		var workingDirectory;
+
+		this.requires('copyFiles');
+
+		grunt.config.requires('copyFiles.options.workingDirectory');
+
+		workingDirectory = grunt.config.get('copyFiles.options.workingDirectory');
 
 		var content = '<%= pkg.name %> version <%= pkg.version %>';
 		content = grunt.template.process(content);
@@ -60,5 +73,5 @@ module.exports = function (grunt) {
 	});
 
 	grunt.registerTask('deploy',
-			'Deploy files.', ['clean', 'createFolder', 'copyFiles']);
+			'Deploy files.', ['clean', 'createFolder', 'copyFiles', 'versionFile']);
 };
