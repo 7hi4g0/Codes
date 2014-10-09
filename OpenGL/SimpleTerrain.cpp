@@ -16,11 +16,12 @@
 #define		Full
 
 // Para o algoritmo de geração de terreno o lado do quadrado tem que ser potência de 2 mais um
-#define		Side	17//513
-#define		Size	0.5
+#define		Side	129//513
+#define		Size	0.0625
 
 #define		Smooth		0.9
-#define		Variation	0.25 * Size * pow(Side, Smooth)
+#define		Roughness	0.5
+#define		Variation	5 * Size * pow(Side, Roughness)
 
 #define		Walk	4
 #define		Run		9
@@ -165,7 +166,7 @@ void diamond(Position *terrain, int x1, int z1, int x2, int z2, int diff) {
 	
 	ponto->y += terrain[x1 * Side + z1].y + terrain[x2 * Side + z2].y;
 	ponto->y /= count;
-	//ponto->y += rand() % (2 * diff + 1) - diff;
+	ponto->y += rand() % (2 * diff + 1) - diff;
 }
 
 void MidpointDisplacement(Position *terrain, int start, int end, int diff) {
@@ -204,10 +205,10 @@ void MidpointDisplacement(Position *terrain, int start, int end, int diff) {
 }
 
 void GenerateTerrain(Position *terrain) {
-	terrain[0].y = //56.0f;
-	terrain[Side - 1].y = //-45.0f;
-	terrain[(Side - 1) * Side].y = //3.0f;
-	terrain[(Side - 1) * Side + Side - 1].y = 23.0f;
+	terrain[0].y = 5.0f;
+	terrain[Side - 1].y = -4.0f;
+	terrain[(Side - 1) * Side].y = .0f;
+	terrain[(Side - 1) * Side + Side - 1].y = 2.0f;
 	
 	MidpointDisplacement(terrain, 0, Side, Variation);
 }
@@ -647,9 +648,9 @@ int main(){
 		} else {
 			fps = 0.75 * fps + 0.25 * (1 / elapsedSeconds);
 		}
-		
+
 		cout << fps << endl;
-		*?
+		*/
 		
 		//cout << elapsedSeconds << endl;
 		/*

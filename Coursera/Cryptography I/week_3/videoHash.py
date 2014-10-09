@@ -1,28 +1,42 @@
 #! /usr/bin/env python3
 
-from Crypto.Hash import SHA256
 import os
+import sys
+import math
+from Crypto.Hash import SHA256
 
 chunck_size = 1024
 
-def hash_file(filename):
-    size = os.path.getsize(filename)
+def videoHash(filename):
+    file_size = os.path.getsize(filename)
 
-    file_pos = size - size % chunck_size
+    chuncks = math.ceil(file_size / chunck_size)
 
-    if file_pos == size:
-        file_pos -= chunck_size
-
-    with open(filename) as f:
-        for tag = []; file_pos >= 0; file_pos -= chunck_size :
+    with open(filename, mode = 'rb') as f:
+        tags = []
+        tag = bytes()
+        for file_pos in range(chunck_size * (chuncks - 1), -chunck_size, -chunck_size):
             f.seek(file_pos)
-            chunck = f.read(chunck_size)
 
-            chunck = chunck.append(tag)
+            chunck = f.read(chunck_size)
+            chunck += tag
 
             tag = SHA256.new(chunck)
-            print(tag.hexdigest())
+            tags.append(tag.hexdigest())
             tag = tag.digest()
 
+    return tags
+
+def usage():
+    print("""
+    USAGE:
+    videoHash filename
+    """)
+
 if __name__ == '__main__':
-    hash_file("test")
+    if len(sys.argv) < 2:
+        usage()
+    else:
+        tags = videoHash(sys.argv[1])
+        print(tags[-1])
+
