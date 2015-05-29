@@ -2,7 +2,7 @@
 
 name = "guessing_game"
 version = "0.0.1"
-authors = ["Thiago Doruado de Andrade <7hi4g0@gmail.com>"]
+authors = ["Thiago Dourado de Andrade <7hi4g0@gmail.com>"]
 
 [dependencies]
 
