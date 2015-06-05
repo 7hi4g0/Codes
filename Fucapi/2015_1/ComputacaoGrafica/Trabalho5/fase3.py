@@ -148,6 +148,7 @@ class Scene(object):
     window_height = 300
 
     fov = 60
+    fixed = True
 
     def __init__(self):
         if self.draw_object_function is None:
@@ -235,6 +236,17 @@ class Scene(object):
 
 
     def draw_scene_viewport(self):
+        def mulMatrixVector(m, v):
+            resultado = []
+
+            resultado.append(m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2] + m[3][0] * 1)
+            resultado.append(m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2] + m[3][1] * 1)
+            resultado.append(m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2] + m[3][2] * 1)
+
+            w = m[0][3] * v[0] + m[1][3] * v[1] + m[2][3] * v[2] + m[3][3] * 1
+            
+            return [x/w for x in resultado]
+
         glDisable(GL_COLOR_MATERIAL)
         glEnable(GL_LIGHTING)
         glDisable(GL_SCISSOR_TEST)
@@ -251,8 +263,35 @@ class Scene(object):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         glLoadIdentity()
+
+        glPushMatrix()
+        orientation = self.plane.orientation
+        glTranslate(*self.plane.pos)
+        glRotate(orientation.yaw, 0, 0, 1)
+        glRotate(orientation.roll, 1, 0, 0)
+        glRotate(orientation.pitch, 0, -1, 0)
+
+        modelView = glGetFloatv(GL_MODELVIEW_MATRIX)
+        glPopMatrix()
+
+        glPushMatrix()
+        orientation = self.plane.orientation
+        glRotate(orientation.yaw, 0, 0, 1)
+        glRotate(orientation.roll, 1, 0, 0)
+        glRotate(orientation.pitch, 0, -1, 0)
+
+        RotateModelView = glGetFloatv(GL_MODELVIEW_MATRIX)
+        glPopMatrix()
+
         pos = self.plane.pos
-        gluLookAt(-20, -30, 20, pos[0], pos[1], pos[2], 0, 0, 1)
+        if self.fixed:
+            gluLookAt(-20, -30, 20, pos[0], pos[1], pos[2], 0, 0, 1)
+        if not self.fixed:
+            camera = mulMatrixVector(modelView, [-1.5, 0, 1])
+            focus = mulMatrixVector(modelView, [1, 0, 0])
+            up = mulMatrixVector(RotateModelView, [0, 0, 1])
+            #gluLookAt(camera[0], camera[1], camera[2], focus[0], focus[1], focus[2], 0, 0, 1)
+            gluLookAt(camera[0], camera[1], camera[2], focus[0], focus[1], focus[2], up[0], up[1], up[2])
 
         glLightfv(GL_LIGHT1, GL_POSITION, [-15, 3, 10, 0])
         glLightfv(GL_LIGHT2, GL_POSITION, [-5, -20, 10, 1])
@@ -313,6 +352,8 @@ class Scene(object):
         elif char == ']':
             if self.fov > 10:
                 self.fov -= 10
+        elif char == 'q' or char == 'Q':
+            self.fixed = not self.fixed
 
 
     def mouse(self, button, state, x, y):

@@ -27,10 +27,12 @@ from OpenGL.GLUT import *
 def desenhaAviao(angulo):
 
     glScale(0.35, 0.35, 0.35)
+    materialMetalVermelho()
     desenhaCorpo()
 
     glPushMatrix()
     glTranslate(0.3, 0, -0.07)
+    materialMetalBranco()
     desenhaAsa()
 
     glPushMatrix()
@@ -51,6 +53,7 @@ def desenhaAviao(angulo):
     glPushMatrix()
     glTranslate(-1.3, 0, 0)
     glScale(0.4, 0.2, 0.4)
+    materialMetalAzul()
     desenhaAsa()
     glPopMatrix()
 
@@ -115,6 +118,7 @@ def desenhaMotor(angulo):
     glRotate(90, 0, 1, 0)
     glTranslate(0, 0, -0.5)
 
+    materialMetalAzul()
     glPushMatrix()
     glutSolidCylinder(0.28, 1, 12, 2)
     glPopMatrix()
@@ -132,6 +136,7 @@ def desenhaMotor(angulo):
     glPushMatrix()
 
     glRotate(90, 0, 1, 0)
+    materialMetalEscovado()
 
     glPushMatrix()
     glScale(1, 1, 3.75)
@@ -159,6 +164,7 @@ def desenhaHelice():
     glTranslate(0, 0, 0.6)
     glRotate(45, 0, 0, 1)
     glScale(1, 0.25, 3)
+    materialMetalPreto()
     glutSolidSphere(0.2, 12, 6)
 
     glPopMatrix()
@@ -171,13 +177,17 @@ def desenhaRodaDianteira():
 
     glPushMatrix()
     glTranslate(0, 0, -0.2)
+    materialBorrachaPreta()
     glutSolidTorus(0.1, 0.2, 6, 12)
+    materialMetalBranco()
     glutSolidCylinder(0.05, 0.4, 12, 6)
     glPopMatrix()
 
     glPushMatrix()
     glTranslate(0, 0, 0.2)
+    materialBorrachaPreta()
     glutSolidTorus(0.1, 0.2, 6, 12)
+    materialMetalBranco()
     glPopMatrix()
 
     glPushMatrix()
@@ -195,7 +205,9 @@ def desenhaRodaTraseiraEsq():
 
     glPushMatrix()
     glTranslate(0, 0, -0.2)
+    materialBorrachaPreta()
     glutSolidTorus(0.1, 0.2, 6, 12)
+    materialMetalBranco()
     glutSolidCylinder(0.05, 0.2, 12, 6)
     glPopMatrix()
 
@@ -207,20 +219,38 @@ def desenhaRodaTraseiraEsq():
 
     glPopMatrix()
 
-def materialPrataPolida():
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [0.23125, 0.23125, 0.23125, 1])
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.2775, 0.2775, 0.2775, 1])
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.773911, 0.773911, 0.773911, 1])
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [89.6])
-
 def materialBorrachaPreta():
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [0.02, 0.02, 0.02, 1])
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.01, 0.01, 0.01, 1])
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.04, 0.04, 0.04, 1])
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [10])
 
-def materialMetalVermelho():
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [0.714, 0.129, 0.129, 1])
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.8, 0.8, 0.8, 1])
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.4, 0.4, 0.4, 1])
+def materialMetalEscovado():
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [1.0, 1.0, 1.0, 1])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.163, 0.163, 0.163, 0.5])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0, 0, 0, 0])
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [0])
+
+def materialMetalVermelho():
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [1.0, 1.0, 1.0, 1])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.8, 0.032, 0.074, 0.8])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [1.0, 0.169, 0.354, 0.5])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [50])
+
+def materialMetalBranco():
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [1.0, 1.0, 1.0, 1])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [1.0, 1.0, 1.0, 1.0])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.376, 0.376, 0.376, 0.5])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [50])
+
+def materialMetalAzul():
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [1.0, 1.0, 1.0, 1])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.0, 0.0, 1.0, 0.5])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.153, 0.011, 0.761, 0.75])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [10])
+
+def materialMetalPreto():
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, [0.02, 0.02, 0.02, 1])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [0.053, 0.053, 0.053, 0.5])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0.42, 0.42, 0.42, 0.35])
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [10])
