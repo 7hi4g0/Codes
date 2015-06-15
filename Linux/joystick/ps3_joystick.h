@@ -1,0 +1,17 @@
+#define	BTN_A				0x12e
+#define	BTN_B				0x12d
+#define	BTN_X				0x12f
+#define	BTN_Y				0x12c
+#define	BTN_START			0x123
+#define	BTN_BACK			0x120
+#define	BTN_GUIDE			0x2c0
+#define	BTN_LEFTSTICK		0x121
+#define	BTN_RIGHTSTICK		0x122
+#define	BTN_DPAD_DOWN		0x126
+#define	BTN_DPAD_RIGHT		0x125
+#define	BTN_DPAD_UP			0x124
+#define	BTN_DPAD_LEFT		0x127
+#define	BTN_LEFTSHOULDER	0x12a
+#define	BTN_RIGHTSHOULDER	0x12b
+#define	BTN_LEFTTRIGGER		0x128
+#define	BTN_RIGHTTRIGGER	0x129

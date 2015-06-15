@@ -7,6 +7,8 @@
 #include <linux/input.h>
 #include <libevdev-1.0/libevdev/libevdev.h>
 
+#include "ps3_joystick.h"
+
 char *types[] = {
 	"DT_UNKNOWN",
 	"DT_REG",
@@ -16,6 +18,26 @@ char *types[] = {
 	"DT_CHR",
 	"DT_BLK",
 	"DT_LNK"
+};
+
+char *codes[] = {
+	"BTN_A",
+	"BTN_B",
+	"BTN_X",
+	"BTN_Y",
+	"BTN_START",
+	"BTN_BACK",
+	"BTN_GUIDE",
+	"BTN_LEFTSTICK",
+	"BTN_RIGHTSTICK",
+	"BTN_DPAD_DOWN",
+	"BTN_DPAD_RIGHT",
+	"BTN_DPAD_UP",
+	"BTN_DPAD_LEFT",
+	"BTN_LEFTSHOULDER",
+	"BTN_RIGHTSHOULDER",
+	"BTN_LEFTTRIGGER",
+	"BTN_RIGHTTRIGGER"
 };
 
 char * typeString(unsigned char type) {
@@ -37,7 +59,49 @@ char * typeString(unsigned char type) {
 		case DT_LNK:
 			return types[7];
 		default:
-			fprintf(stderr, "Unknown type flag");
+			fprintf(stderr, "Unknown type flag\n");
+			return NULL;
+	}
+}
+
+char * codeString(unsigned short code) {
+	switch (code) {
+		case BTN_A:
+			return codes[0];
+		case BTN_B:
+			return codes[1];
+		case BTN_X:
+			return codes[2];
+		case BTN_Y:
+			return codes[3];
+		case BTN_START:
+			return codes[4];
+		case BTN_BACK:
+			return codes[5];
+		case BTN_GUIDE:
+			return codes[6];
+		case BTN_LEFTSTICK:
+			return codes[7];
+		case BTN_RIGHTSTICK:
+			return codes[8];
+		case BTN_DPAD_DOWN:
+			return codes[9];
+		case BTN_DPAD_RIGHT:
+			return codes[10];
+		case BTN_DPAD_UP:
+			return codes[11];
+		case BTN_DPAD_LEFT:
+			return codes[12];
+		case BTN_LEFTSHOULDER:
+			return codes[13];
+		case BTN_RIGHTSHOULDER:
+			return codes[14];
+		case BTN_LEFTTRIGGER:
+			return codes[15];
+		case BTN_RIGHTTRIGGER:
+			return codes[16];
+		default:
+			fprintf(stderr, "Unknown code\n");
 			return NULL;
 	}
 }
@@ -85,7 +149,7 @@ int main() {
 			while (1) {
 				libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev);
 				if (ev.type == EV_KEY) {
-					char *codeName = libevdev_event_code_get_name(ev.type, ev.code);
+					char *codeName = codeString(ev.code);
 					printf("%s(%x)\n", codeName != NULL ? codeName : "Unknown", ev.code);
 				}
 			}
