@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <inttypes.h>
 
 #include <alloca.h>
@@ -58,15 +59,31 @@ void configureParams(snd_pcm_t *playbackHandle) {
 
 int main(int argc, char * argv[]) {
 	char *pcmName;
+	int opt;
 	int time;
 	snd_pcm_t *playbackHandle;
 
 	time = 5;
-	if (argc > 1) {
-		sscanf(argv[1], "%d", &time);
-	}
-
 	pcmName = strdup("default");
+
+	while ((opt = getopt(argc, argv, ":t:d:")) != -1) {
+		switch (opt) {
+			case 't':
+				time = atoi(optarg);
+				break;
+			case 'd':
+				pcmName = optarg;
+				break;
+			case ':':
+				fprintf(stderr, "%c needs an argument\n", optopt);
+				exit(-1);
+				break;
+			default:
+				fprintf(stderr, "Unknown option %c\n", optopt);
+				exit(-1);
+				break;
+		}
+	}
 
 	if (snd_pcm_open(&playbackHandle, pcmName, SND_PCM_STREAM_PLAYBACK, 0) < 0) {
 		fprintf(stderr, "Error opening device '%s'\n", pcmName);
