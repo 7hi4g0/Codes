@@ -64,18 +64,25 @@ int main(int argc, char * argv[]) {
 	char *pcmName;
 	int opt;
 	int time;
+	float freq;
+	int sampleRate;
 	snd_pcm_t *playbackHandle;
 
 	time = 5;
 	pcmName = strdup("default");
+	freq = 800;
+	sampleRate = 48000;
 
-	while ((opt = getopt(argc, argv, ":t:d:")) != -1) {
+	while ((opt = getopt(argc, argv, ":t:d:f:")) != -1) {
 		switch (opt) {
 			case 't':
 				time = atoi(optarg);
 				break;
 			case 'd':
 				pcmName = optarg;
+				break;
+			case 'f':
+				freq = atof(optarg);
 				break;
 			case ':':
 				fprintf(stderr, "%c needs an argument\n", optopt);
@@ -125,11 +132,6 @@ int main(int argc, char * argv[]) {
 	printf("Frames: %lu\n", frames);
 	printf("Period time: %d\n", periodTime);
 
-	int16_t volume = 3000;
-	int halfPeriod = 192;
-	int index;
-	int seconds;
-
 	/*
 #define	BUF_SIZE	12000LU
 	int16_t buf[BUF_SIZE];
@@ -139,21 +141,30 @@ int main(int argc, char * argv[]) {
 	}
 	*/
 
-	char *buf = (char *) malloc(frames * 4);
-	int16_t *frame = (int16_t *) buf;
-	float tAngle = 0;
-	float tAngleIncr = 2 * PI / 60;
+#define	PERIOD	(2 * PI)
+	int16_t volume = 3000;
+	int index;
+	int seconds;
+	int period;
 
-	for (index = 0; index < frames; index++) {
-		int16_t sampleValue = (int16_t) volume * sinf(tAngle);
-		*frame++ = sampleValue;
-		*frame++ = sampleValue;
-		tAngle += tAngleIncr;
-	}
+	char *buf = (char *) malloc(frames * 4);
+	int16_t *frame;
+	float tAngle = 0;
+	float tAngleIncr = PERIOD / (sampleRate / freq);
 
 	for (seconds = 0; seconds < time; seconds++) {
 		printf("Seconds: %02d\n", seconds);
-		for (index = 1000000 / periodTime; index > 0; index--) {
+		for (period = 1000000 / periodTime; period > 0; period--) {
+			frame = (int16_t *) buf;
+
+			for (index = 0; index < frames; index++) {
+				int16_t sampleValue = (int16_t) volume * sinf(tAngle);
+				*frame++ = sampleValue;
+				*frame++ = sampleValue;
+				tAngle += tAngleIncr;
+			}
+			tAngle = fmod(tAngle, PERIOD);
+
 			if ((err = snd_pcm_writei(playbackHandle, (void *)buf, frames)) < 0) {
 				fprintf(stderr, "Error playing (%s)\n", snd_strerror(err));
 				return -1;
