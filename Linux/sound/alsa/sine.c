@@ -3,9 +3,12 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include <alloca.h>
 #include <alsa/asoundlib.h>
+
+#define	PI	3.141592653589f
 
 int err;
 
@@ -138,10 +141,14 @@ int main(int argc, char * argv[]) {
 
 	char *buf = (char *) malloc(frames * 4);
 	int16_t *frame = (int16_t *) buf;
+	float tAngle = 0;
+	float tAngleIncr = 2 * PI / 60;
 
 	for (index = 0; index < frames; index++) {
-		*frame++ = ((index / 30) % 2) ? -volume : volume;
-		*frame++ = ((index / 30) % 2) ? -volume : volume;
+		int16_t sampleValue = (int16_t) volume * sinf(tAngle);
+		*frame++ = sampleValue;
+		*frame++ = sampleValue;
+		tAngle += tAngleIncr;
 	}
 
 	for (seconds = 0; seconds < time; seconds++) {
