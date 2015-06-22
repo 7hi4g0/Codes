@@ -65,15 +65,17 @@ int main(int argc, char * argv[]) {
 	int opt;
 	int time;
 	float freq;
+	int16_t volume;
 	int sampleRate;
 	snd_pcm_t *playbackHandle;
 
 	time = 5;
 	pcmName = strdup("default");
 	freq = 800;
+	volume = 3000;
 	sampleRate = 48000;
 
-	while ((opt = getopt(argc, argv, ":t:d:f:")) != -1) {
+	while ((opt = getopt(argc, argv, ":t:d:f:v:")) != -1) {
 		switch (opt) {
 			case 't':
 				time = atoi(optarg);
@@ -83,6 +85,9 @@ int main(int argc, char * argv[]) {
 				break;
 			case 'f':
 				freq = atof(optarg);
+				break;
+			case 'v':
+				volume = (atof(optarg) / 100) * INT16_MAX;
 				break;
 			case ':':
 				fprintf(stderr, "%c needs an argument\n", optopt);
@@ -142,7 +147,6 @@ int main(int argc, char * argv[]) {
 	*/
 
 #define	PERIOD	(2 * PI)
-	int16_t volume = 3000;
 	int index;
 	int seconds;
 	int period;
