@@ -188,7 +188,7 @@ int main() {
 		libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL | LIBEVDEV_READ_FLAG_BLOCKING, &ev);
 		if (ev.type == EV_KEY) {
 			char *codeName = codeString(ev.code);
-			printf("%s(%d - 0x%x)\n", codeName != NULL ? codeName : "Unknown", ev.code, ev.code);
+			printf("%s(%d - 0x%x) value = %d\n", codeName != NULL ? codeName : "Unknown", ev.code, ev.code, ev.value);
 		}
 	}
 }
