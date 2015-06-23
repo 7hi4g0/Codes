@@ -60,22 +60,38 @@ void configureParams(snd_pcm_t *playbackHandle) {
 	printf("Buffer size: %lu\n", bufferSize);
 }
 
+float mul(float sample1, float sample2) {
+	return sample1 * sample2;
+}
+
+float max(float sample1, float sample2) {
+	return (sample1 > sample2) ? sample1 : sample2;
+}
+
+float sum(float sample1, float sample2) {
+	return sample1 + sample2;
+}
+
 int main(int argc, char * argv[]) {
 	char *pcmName;
 	int opt;
 	int time;
-	float freq;
+	float freqH;
+	float freqL;
 	int16_t volume;
 	int sampleRate;
 	snd_pcm_t *playbackHandle;
+	float (*blend)(float, float);
 
 	time = 5;
 	pcmName = strdup("default");
-	freq = 800;
+	freqH = 800;
+	freqL = 80;
 	volume = 3000;
 	sampleRate = 48000;
+	blend = sum;
 
-	while ((opt = getopt(argc, argv, ":t:d:f:v:")) != -1) {
+	while ((opt = getopt(argc, argv, ":t:d:h:l:b:v:")) != -1) {
 		switch (opt) {
 			case 't':
 				time = atoi(optarg);
@@ -83,8 +99,27 @@ int main(int argc, char * argv[]) {
 			case 'd':
 				pcmName = optarg;
 				break;
-			case 'f':
-				freq = atof(optarg);
+			case 'h':
+				freqH = atof(optarg);
+				break;
+			case 'l':
+				freqL = atof(optarg);
+				break;
+			case 'b':
+				switch (optarg[0]) {
+					case 's':
+						blend = sum;
+						break;
+					case 'm':
+						blend = max;
+						break;
+					case 'x':
+						blend = mul;
+						break;
+					default:
+						fprintf(stderr, "Unknown blend function!\nUsing default instead.\n");
+						break;
+				}
 				break;
 			case 'v':
 				volume = (atof(optarg) / 100) * INT16_MAX;
@@ -153,8 +188,10 @@ int main(int argc, char * argv[]) {
 
 	char *buf = (char *) malloc(frames * 4);
 	int16_t *frame;
-	float tAngle = 0;
-	float tAngleIncr = PERIOD / (sampleRate / freq);
+	float tAngleH = 0;
+	float tAngleHIncr = PERIOD / (sampleRate / freqH);
+	float tAngleL = 0;
+	float tAngleLIncr = PERIOD / (sampleRate / freqL);
 
 	for (seconds = 0; seconds < time; seconds++) {
 		printf("Seconds: %02d\n", seconds);
@@ -162,12 +199,14 @@ int main(int argc, char * argv[]) {
 			frame = (int16_t *) buf;
 
 			for (index = 0; index < frames; index++) {
-				int16_t sampleValue = (int16_t) volume * sinf(tAngle);
+				int16_t sampleValue = (int16_t) volume * blend(sinf(tAngleH),sinf(tAngleL));
 				*frame++ = sampleValue;
 				*frame++ = sampleValue;
-				tAngle += tAngleIncr;
+				tAngleH += tAngleHIncr;
+				tAngleL += tAngleLIncr;
 			}
-			tAngle = fmod(tAngle, PERIOD);
+			tAngleH = fmod(tAngleH, PERIOD);
+			tAngleL = fmod(tAngleL, PERIOD);
 
 			if ((err = snd_pcm_writei(playbackHandle, (void *)buf, frames)) < 0) {
 				fprintf(stderr, "Error playing (%s)\n", snd_strerror(err));

@@ -9,6 +9,8 @@
 #include <alsa/asoundlib.h>
 
 #define	PI	3.141592653589f
+#define	PERIOD	(2 * PI)
+#define	SEMITONE	1.05946309436f
 
 int err;
 
@@ -65,17 +67,22 @@ int main(int argc, char * argv[]) {
 	int opt;
 	int time;
 	float freq;
+	float lowFreq;
+	float highFreq;
+	float cents;
 	int16_t volume;
 	int sampleRate;
 	snd_pcm_t *playbackHandle;
 
 	time = 5;
 	pcmName = strdup("default");
-	freq = 800;
+	lowFreq = 16.35;
+	highFreq = 7902;
+	cents = 50;
 	volume = 3000;
 	sampleRate = 48000;
 
-	while ((opt = getopt(argc, argv, ":t:d:f:v:")) != -1) {
+	while ((opt = getopt(argc, argv, ":t:d:l:h:c:v:")) != -1) {
 		switch (opt) {
 			case 't':
 				time = atoi(optarg);
@@ -83,8 +90,14 @@ int main(int argc, char * argv[]) {
 			case 'd':
 				pcmName = optarg;
 				break;
-			case 'f':
-				freq = atof(optarg);
+			case 'l':
+				lowFreq = atof(optarg);
+				break;
+			case 'h':
+				highFreq = atof(optarg);
+				break;
+			case 'c':
+				cents = (float) atoi(optarg);
 				break;
 			case 'v':
 				volume = (atof(optarg) / 100) * INT16_MAX;
@@ -134,7 +147,7 @@ int main(int argc, char * argv[]) {
 	snd_pcm_hw_params_get_period_size(hwParams, &frames, &dir);
 	snd_pcm_hw_params_get_period_time(hwParams, &periodTime, &dir);
 	printf("Channels: %d\n", channels);
-	printf("Frames: %lu\n", frames);
+	printf("Frames per period: %lu\n", frames);
 	printf("Period time: %d\n", periodTime);
 
 	/*
@@ -146,37 +159,57 @@ int main(int argc, char * argv[]) {
 	}
 	*/
 
-#define	PERIOD	(2 * PI)
 	int index;
-	int seconds;
 	int period;
 
 	char *buf = (char *) malloc(frames * 4);
 	int16_t *frame;
 	float tAngle = 0;
-	float tAngleIncr = PERIOD / (sampleRate / freq);
+	float tAngleIncr;
 
-	for (seconds = 0; seconds < time; seconds++) {
-		printf("Seconds: %02d\n", seconds);
-		for (period = 1000000 / periodTime; period > 0; period--) {
-			frame = (int16_t *) buf;
+	cents = powf(2, cents / 1200);
 
-			for (index = 0; index < frames; index++) {
-				int16_t sampleValue = (int16_t) volume * sinf(tAngle);
-				*frame++ = sampleValue;
-				*frame++ = sampleValue;
-				tAngle += tAngleIncr;
-			}
-			tAngle = fmod(tAngle, PERIOD);
+	for (freq = lowFreq; freq < highFreq; freq *= cents) {
+		tAngleIncr = PERIOD / (sampleRate / freq);
 
-			if ((err = snd_pcm_writei(playbackHandle, (void *)buf, frames)) < 0) {
-				fprintf(stderr, "Error playing (%s)\n", snd_strerror(err));
-				return -1;
-			}
+		frame = (int16_t *) buf;
+		for (index = 0; index < frames; index++) {
+			int16_t sampleValue = (int16_t) volume * sinf(tAngle);
+			*frame++ = sampleValue;
+			*frame++ = sampleValue;
+			tAngle += tAngleIncr;
+		}
+		tAngle = fmod(tAngle, PERIOD);
 
-			if (err != frames) {
-				fprintf(stderr, "Wrote %d bytes of %lu\n", err, frames);
-			}
+		if ((err = snd_pcm_writei(playbackHandle, (void *)buf, frames)) < 0) {
+			fprintf(stderr, "Error playing (%s)\n", snd_strerror(err));
+			return -1;
+		}
+
+		if (err != frames) {
+			fprintf(stderr, "Wrote %d bytes of %lu\n", err, frames);
+		}
+	}
+
+	for (freq = highFreq; freq > lowFreq; freq /= cents) {
+		tAngleIncr = PERIOD / (sampleRate / freq);
+
+		frame = (int16_t *) buf;
+		for (index = 0; index < frames; index++) {
+			int16_t sampleValue = (int16_t) volume * sinf(tAngle);
+			*frame++ = sampleValue;
+			*frame++ = sampleValue;
+			tAngle += tAngleIncr;
+		}
+		tAngle = fmod(tAngle, PERIOD);
+
+		if ((err = snd_pcm_writei(playbackHandle, (void *)buf, frames)) < 0) {
+			fprintf(stderr, "Error playing (%s)\n", snd_strerror(err));
+			return -1;
+		}
+
+		if (err != frames) {
+			fprintf(stderr, "Wrote %d bytes of %lu\n", err, frames);
 		}
 	}
 
