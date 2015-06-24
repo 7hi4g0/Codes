@@ -52,13 +52,12 @@ int main(int argc, char * argv[]) {
 
 	time = 5;
 	pcmName = strdup("default");
-	lowFreq = 16.35;
+	lowFreq = 261.6;
 	highFreq = 7902;
-	cents = 50;
 	volume = 3000;
 	sampleRate = 48000;
 
-	while ((opt = getopt(argc, argv, ":t:d:l:h:c:v:")) != -1) {
+	while ((opt = getopt(argc, argv, ":t:d:l:h:v:")) != -1) {
 		switch (opt) {
 			case 't':
 				time = atoi(optarg);
@@ -71,9 +70,6 @@ int main(int argc, char * argv[]) {
 				break;
 			case 'h':
 				highFreq = atof(optarg);
-				break;
-			case 'c':
-				cents = (float) atoi(optarg);
 				break;
 			case 'v':
 				volume = (atof(optarg) / 100) * INT16_MAX;
@@ -155,7 +151,7 @@ int main(int argc, char * argv[]) {
 
 	snd_pcm_set_params(playbackHandle, SND_PCM_FORMAT_S16_LE,
 					   SND_PCM_ACCESS_RW_INTERLEAVED, 2,
-					   48000, 1, 500000);
+					   48000, 1, 50000);
 
 	/*
 	if ((err = snd_pcm_prepare(playbackHandle)) < 0) {
@@ -203,8 +199,8 @@ int main(int argc, char * argv[]) {
 	float tAngle = 0;
 	float tAngleIncr;
 
-	cents = powf(2, cents / 1200);
-	freq = (highFreq + lowFreq) / 2;
+	cents = powf(highFreq / lowFreq, 1.0f / 255) ;
+	freq =  lowFreq * powf(cents, 127.5f);
 
 	while (running) {
 		while (libevdev_next_event(kbdDev, LIBEVDEV_READ_FLAG_NORMAL, &ev) != -EAGAIN) {
@@ -231,12 +227,7 @@ int main(int argc, char * argv[]) {
 
 				switch (ev.code) {
 					case ABS_Y:
-						rate = powf(cents, (ev.value / 127.5f) - 1.0f);
-						if (rate < 1 && freq > lowFreq) {
-							freq *= rate;
-						} else if (rate > 1 && freq < highFreq) {
-							freq *= rate;
-						}
+						freq = lowFreq * powf(cents, ev.value);
 						break;
 					default:
 						break;
