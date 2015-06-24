@@ -26,6 +26,18 @@ int endsWith(char *string, char *subString) {
 	return strcmp(string + (length - subLength), subString);
 }
 
+char * getFilepath(char *name) {
+	unsigned int pathLength;
+	char *filepath = NULL;
+
+	pathLength = strlen("/dev/input/by-path/") + strlen(name) + 1;
+	filepath = (char *) malloc(sizeof(char) * pathLength);
+	strcpy(filepath, "/dev/input/by-path/");
+	strcat(filepath, name);
+
+	return filepath;
+}
+
 int main(int argc, char * argv[]) {
 	char *pcmName;
 	int opt;
@@ -88,17 +100,17 @@ int main(int argc, char * argv[]) {
 	}
 
 	char *keyboard = NULL;
+	char *joystick = NULL;
 
 	while ((entry = readdir(directory)) != NULL) {
-		if (endsWith(entry->d_name, "-event-kbd") == 0) {
-			unsigned int pathLength;
+		if (keyboard == NULL && endsWith(entry->d_name, "-event-kbd") == 0) {
+			fprintf(stderr, "Keyboard found!\n");
 
-			pathLength = strlen("/dev/input/by-path/") + strlen(entry->d_name) + 1;
-			keyboard = (char *) malloc(sizeof(char) * pathLength);
-			strcpy(keyboard, "/dev/input/by-path/");
-			strcat(keyboard, entry->d_name);
+			keyboard = getFilepath(entry->d_name);
+		} else if (joystick == NULL && endsWith(entry->d_name, "-event-joystick") == 0) {
+			fprintf(stderr, "Joystick found!\n");
 
-			break;
+			joystick = getFilepath(entry->d_name);
 		}
 	}
 
@@ -106,21 +118,35 @@ int main(int argc, char * argv[]) {
 
 	if (keyboard == NULL) {
 		fprintf(stderr, "Keyboard not found!\n");
+		exit(-1);
 	}
 
-	struct libevdev *dev;
+	struct libevdev *kbdDev;
+	struct libevdev *jsDev;
 	int kbd;
+	int js;
 
 	printf("%s\n", keyboard);
 
 	kbd = open(keyboard, O_RDONLY | O_NONBLOCK);
 	if (kbd == -1) {
-		fprintf(stderr, "Unable to open device\n");
+		fprintf(stderr, "Unable to open keyboard device (%s)\n", keyboard);
 		exit(-1);
 	}
-	libevdev_new_from_fd(kbd, &dev);
+	libevdev_new_from_fd(kbd, &kbdDev);
 
-	printf("%s\n", libevdev_get_name(dev));
+	printf("%s\n", libevdev_get_name(kbdDev));
+
+	printf("%s\n", joystick);
+
+	js = open(joystick, O_RDONLY | O_NONBLOCK);
+	if (js == -1) {
+		fprintf(stderr, "Unable to open joystick device (%s)\n", joystick);
+		exit(-1);
+	}
+	libevdev_new_from_fd(js, &jsDev);
+
+	printf("%s\n", libevdev_get_name(jsDev));
 
 	if (snd_pcm_open(&playbackHandle, pcmName, SND_PCM_STREAM_PLAYBACK, 0) < 0) {
 		fprintf(stderr, "Error opening device '%s'\n", pcmName);
@@ -181,7 +207,7 @@ int main(int argc, char * argv[]) {
 	freq = (highFreq + lowFreq) / 2;
 
 	while (running) {
-		while (libevdev_next_event(dev, LIBEVDEV_READ_FLAG_NORMAL, &ev) != -EAGAIN) {
+		while (libevdev_next_event(kbdDev, LIBEVDEV_READ_FLAG_NORMAL, &ev) != -EAGAIN) {
 			if (ev.type == EV_KEY) {
 				switch (ev.code) {
 					case KEY_W:
@@ -199,7 +225,25 @@ int main(int argc, char * argv[]) {
 				}
 			}
 		}
-		printf("%f\n", freq);
+		while (libevdev_next_event(jsDev, LIBEVDEV_READ_FLAG_NORMAL, &ev) != -EAGAIN) {
+			if (ev.type == EV_ABS) {
+				float rate;
+
+				switch (ev.code) {
+					case ABS_Y:
+						rate = powf(cents, (ev.value / 127.5f) - 1.0f);
+						if (rate < 1 && freq > lowFreq) {
+							freq *= rate;
+						} else if (rate > 1 && freq < highFreq) {
+							freq *= rate;
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		}
+		//printf("%f\n", freq);
 
 		tAngleIncr = PERIOD / (sampleRate / freq);
 
