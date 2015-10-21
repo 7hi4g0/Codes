@@ -180,7 +180,7 @@ class Scene(object):
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, [0, 0, 0, 1])
         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, [0])
 
-        for x in range(-30, 31):
+        for x in range(-60, 61):
             for y in range(-30, 31):
                 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, [
                     random.uniform(0.5, 0.7),
@@ -290,7 +290,6 @@ class Scene(object):
             camera = mulMatrixVector(modelView, [-1.5, 0, 1])
             focus = mulMatrixVector(modelView, [1, 0, 0])
             up = mulMatrixVector(RotateModelView, [0, 0, 1])
-            #gluLookAt(camera[0], camera[1], camera[2], focus[0], focus[1], focus[2], 0, 0, 1)
             gluLookAt(camera[0], camera[1], camera[2], focus[0], focus[1], focus[2], up[0], up[1], up[2])
 
         glLightfv(GL_LIGHT1, GL_POSITION, [-15, 3, 10, 0])
