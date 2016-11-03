@@ -157,7 +157,7 @@
 										  lower-limit)))
 				 (if (<= x lower-limit)
 				   (list x)
-				   (cons x (f lazy-cdr moves) (min x upper-limit)))))))
+				   (cons x (f (lazy-cdr moves) (min x upper-limit))))))))
 	(f (caddr tree) upper-limit)))
 
 (defun ab-rate-position (tree player upper-limit lower-limit)
