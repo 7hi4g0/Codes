@@ -1,0 +1,9 @@
+[package]
+authors = ["Thiago Dourado de Andrade <7hi4g0@gmail.com>"]
+name = "sudoku"
+version = "0.1.0"
+[dependencies]
+piston = "*"
+piston2d-graphics = "*"
+piston2d-opengl_graphics = "*"
+pistoncore-glutin_window = "*"
