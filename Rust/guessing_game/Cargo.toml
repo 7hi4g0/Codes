@@ -6,4 +6,4 @@ authors = ["Thiago Dourado de Andrade <7hi4g0@gmail.com>"]
 
 [dependencies]
 
-rand = "0.3.0"
+rand = "*"
