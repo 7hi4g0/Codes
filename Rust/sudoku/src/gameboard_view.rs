@@ -35,7 +35,7 @@ pub struct GameboardViewSettings {
 }
 
 impl GameboardViewSettings {
-    /// Creates new gameboard view settings.
+    /// Creates a new gameboard view settings.
     pub fn new() -> GameboardViewSettings {
         GameboardViewSettings {
             position: [10.0; 2],
@@ -61,7 +61,7 @@ pub struct GameboardView {
 }
 
 impl GameboardView {
-    /// Creates a new GameboardView.
+    /// Creates a new gameboard view.
     pub fn new(settings: GameboardViewSettings) -> GameboardView {
         GameboardView {
             settings: settings,
@@ -96,7 +96,7 @@ impl GameboardView {
             let pos = [ind[0] as f64 * cell_size, ind[1] as f64 * cell_size];
             let cell_rect = [
                 settings.position[0] + pos[0], settings.position[1] + pos[1],
-                cell_size, cell_size
+                cell_size, cell_size,
             ];
             Rectangle::new(settings.selected_cell_background_color)
                 .draw(cell_rect, &c.draw_state, c.transform, g);
@@ -127,7 +127,7 @@ impl GameboardView {
         let cell_edge = Line::new(settings.cell_edge_color, settings.cell_edge_radius);
         for i in 0..9 {
             // Skip lines that are covered by sections.
-            if (1 % 3) == 0 {continue;}
+            if (i % 3) == 0 { continue; }
 
             let x = settings.position[0] + i as f64 / 9.0 * settings.size;
             let y = settings.position[1] + i as f64 / 9.0 * settings.size;
@@ -144,6 +144,7 @@ impl GameboardView {
         // Draw section borders.
         let section_edge = Line::new(settings.section_edge_color, settings.section_edge_radius);
         for i in 0..3 {
+            // Set up coordinates.
             let x = settings.position[0] + i as f64 / 3.0 * settings.size;
             let y = settings.position[1] + i as f64 / 3.0 * settings.size;
             let x2 = settings.position[0] + settings.size;

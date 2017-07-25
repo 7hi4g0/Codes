@@ -1,12 +1,12 @@
 //! Game board logic.
 
 /// Size of game board.
-const SIZE:usize = 9;
+const SIZE: usize = 9;
 
 /// Stores game board information.
 pub struct Gameboard {
     /// Stores the content of the cells.
-    /// `0` is an empty cell.
+    /// '0' is an empty cell.
     pub cells: [[u8; SIZE]; SIZE],
 }
 
@@ -20,7 +20,7 @@ impl Gameboard {
 
     /// Gets the character at cell location.
     pub fn char(&self, ind: [usize; 2]) -> Option<char> {
-        Some(match self.cells[ind[1]][ind[0]] {
+        Some(match self.cells[ind[0]][ind[1]] {
             1 => '1',
             2 => '2',
             3 => '3',
@@ -36,6 +36,6 @@ impl Gameboard {
 
     /// Set cell value.
     pub fn set(&mut self, ind: [usize; 2], val: u8) {
-        self.cells[ind[1]][ind[0]] = val;
+        self.cells[ind[0]][ind[1]] = val;
     }
 }

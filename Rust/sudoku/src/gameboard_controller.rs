@@ -10,7 +10,7 @@ pub struct GameboardController {
     pub gameboard: Gameboard,
     /// Selected cell.
     pub selected_cell: Option<[usize; 2]>,
-    /// Stores last mouse cursor position,
+    /// Stores last mouse cursor position.
     cursor_pos: [f64; 2],
 }
 

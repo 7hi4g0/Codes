@@ -1,6 +1,6 @@
 #![deny(missing_docs)]
 
-//! A Sudoku game.
+//! A Sudoku Game.
 
 extern crate piston;
 extern crate glutin_window;
@@ -26,12 +26,11 @@ fn main() {
     let opengl = OpenGL::V3_2;
     let settings = WindowSettings::new("Sudoku", [512; 2])
         .opengl(opengl)
-//        .decorated(false)
         .exit_on_esc(true);
     let mut window: GlutinWindow = settings.build()
         .expect("Could not create window");
 
-    let mut events = Events::new(EventSettings::new().lazy(true));
+    let mut events = Events::new(EventSettings::new().lazy(false));
     let mut gl = GlGraphics::new(opengl);
 
     let gameboard = Gameboard::new();
@@ -47,6 +46,7 @@ fn main() {
         gameboard_controller.event(gameboard_view.settings.position,
                                    gameboard_view.settings.size,
                                    &e);
+
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 use graphics::{clear};
