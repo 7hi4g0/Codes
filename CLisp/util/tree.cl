@@ -17,3 +17,8 @@
 							 (cons (car tree) acc)))))))
 	(rec tree nil)))
 
+(defun rfind-if (fn tree)
+  (if (atom tree)
+	  (and (funcall fn tree) tree)
+	  (or (rfind-if fn (car tree))
+		  (if (cdr tree) (rfind-if fn (cdr tree))))))
